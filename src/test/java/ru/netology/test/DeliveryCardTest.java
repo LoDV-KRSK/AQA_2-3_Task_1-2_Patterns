@@ -54,7 +54,7 @@ public class DeliveryCardTest {
         $("[data-test-id='agreement']").click();
         $("[class=\"button__text\"]").click();
         $("[data-test-id=date] input").sendKeys(planningDateLast);
-        $("[class=\"button__text\"]").click();
+//        $("[class=\"button__text\"]").click();
         $("[data-test-id='replan-notification'] .notification__content").shouldHave(Condition.text("У вас уже запланирована встреча на другую дату. Перепланировать?"));
         $("[data-test-id='replan-notification'] .button__text").click();
         $("[data-test-id='success-notification'] .notification__content").shouldHave(Condition.text("Встреча успешно запланирована на " + planningDate));
