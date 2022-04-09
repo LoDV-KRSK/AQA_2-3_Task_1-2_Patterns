@@ -2,27 +2,23 @@ package ru.netology.test;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Configuration;
-import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.Selenide;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
 import ru.netology.data.DataGenerator;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
-import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Selectors.withText;
 import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$$;
+import static java.time.Duration.ofSeconds;
+import static ru.netology.data.DataGenerator.generateDate;
 
 public class DeliveryCardTest {
 
-    public String generateDate(int Days) {
-        return LocalDate.now().plusDays(Days).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-    }
-
     @Test
     void shouldMustScheduleMeetingTime() {
-        String planningDate = generateDate(5);
+        String planningDate = generateDate(4);
 
         Configuration.holdBrowserOpen = false;
         Selenide.open("http://0.0.0.0:9999/");
@@ -34,14 +30,16 @@ public class DeliveryCardTest {
         $("[data-test-id='phone'] input").val(DataGenerator.fakerPhone());
         $("[data-test-id='agreement']").click();
         $("[class=\"button__text\"]").click();
-        $(Selectors.withText("Успешно!")).shouldBe(visible);
+        $(withText("Успешно!")).shouldBe(visible);
         $("[data-test-id='success-notification'] .notification__content").shouldHave(Condition.text("Встреча успешно запланирована на " + planningDate));
     }
+
+
 
     @Test
     void shouldSuggestReschedulingMeetingTime() {
         String planningDate = generateDate(4);
-        String planningDateLast = generateDate(5);
+
 
         Configuration.holdBrowserOpen = false;
         Selenide.open("http://0.0.0.0:9999/");
@@ -51,12 +49,20 @@ public class DeliveryCardTest {
         $("[data-test-id=date] input").sendKeys(planningDate);
         $("[data-test-id=name] input").val(DataGenerator.fakerName());
         $("[data-test-id='phone'] input").val(DataGenerator.fakerPhone());
-        $("[data-test-id='agreement']").click();
-        $("[class=\"button__text\"]").click();
-        $("[data-test-id=date] input").sendKeys(planningDateLast);
-        $("[class=\"button__text\"]").click();
-        $("[data-test-id='replan-notification'] .notification__content").shouldHave(Condition.text("У вас уже запланирована встреча на другую дату. Перепланировать?"));
-        $("[data-test-id='replan-notification'] .button__text").click();
-        $("[data-test-id='success-notification'] .notification__content").shouldHave(Condition.text("Встреча успешно запланирована на " + planningDate));
+
+        $("[data-test-id=agreement]").click();
+        $(withText("Запланировать")).click();
+        $("[data-test-id=success-notification] .notification__content").should(appear, ofSeconds(10))
+                .shouldHave(exactText("Встреча успешно запланирована на  " + planningDate));
+
+        String planningDateLast = generateDate(5);
+
+        $("[placeholder='Дата встречи']").doubleClick().sendKeys(Keys.BACK_SPACE);
+        $("[data-test-id='date'] input").val(planningDateLast);
+        $$("button").find(exactText("Запланировать")).click();
+        $("[data-test-id='replan-notification'] .button").should(appear, ofSeconds(10)).click();
+        $("[class='notification__content']")
+                .shouldHave(Condition.text("Встреча успешно запланирована на " + planningDateLast));
+
     }
 }
