@@ -19,7 +19,6 @@ public class DeliveryCardTest {
     @Test
     void shouldMustScheduleMeetingTime() {
         String planningDate = generateDate(4);
-
         Configuration.holdBrowserOpen = false;
         Selenide.open("http://0.0.0.0:9999/");
         $("[data-test-id='city'] input").val(DataGenerator.generateCity());
@@ -31,16 +30,13 @@ public class DeliveryCardTest {
         $("[data-test-id='agreement']").click();
         $("[class=\"button__text\"]").click();
         $(withText("Успешно!")).shouldBe(visible);
-        $("[data-test-id='success-notification'] .notification__content").shouldHave(Condition.text("Встреча успешно запланирована на " + planningDate));
+        $("[data-test-id='success-notification'] .notification__content")
+                .shouldHave(Condition.text("Встреча успешно запланирована на " + planningDate));
     }
-
-
 
     @Test
     void shouldSuggestReschedulingMeetingTime() {
         String planningDate = generateDate(4);
-
-
         Configuration.holdBrowserOpen = false;
         Selenide.open("http://0.0.0.0:9999/");
         $("[data-test-id='city'] input").val(DataGenerator.generateCity());
@@ -49,20 +45,16 @@ public class DeliveryCardTest {
         $("[data-test-id=date] input").sendKeys(planningDate);
         $("[data-test-id=name] input").val(DataGenerator.fakerName());
         $("[data-test-id='phone'] input").val(DataGenerator.fakerPhone());
-
         $("[data-test-id=agreement]").click();
         $(withText("Запланировать")).click();
         $("[data-test-id=success-notification] .notification__content").should(appear, ofSeconds(10))
                 .shouldHave(exactText("Встреча успешно запланирована на  " + planningDate));
-
         String planningDateLast = generateDate(5);
-
         $("[placeholder='Дата встречи']").doubleClick().sendKeys(Keys.BACK_SPACE);
         $("[data-test-id='date'] input").val(planningDateLast);
         $$("button").find(exactText("Запланировать")).click();
         $("[data-test-id='replan-notification'] .button").should(appear, ofSeconds(10)).click();
         $("[class='notification__content']")
                 .shouldHave(Condition.text("Встреча успешно запланирована на " + planningDateLast));
-
     }
 }
