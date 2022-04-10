@@ -34,11 +34,6 @@ public class DataGenerator {
         int random = 3 + (int) (Math.random() * 30);
         return LocalDate.now().plusDays(random).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
     }
-
-//    public String generateDate(int Days) {
-//        return LocalDate.now().plusDays(Days).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-//    }
-
 }
 
 
